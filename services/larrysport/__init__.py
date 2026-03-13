@@ -13,7 +13,6 @@ Uso desde cualquier parte del proyecto:
 
 import asyncio
 import concurrent.futures
-import datetime
 import logging
 
 from services.larrysport.cache import (
@@ -21,9 +20,10 @@ from services.larrysport.cache import (
     info_fixture,
     leer_fixture,
 )
+from datetime import datetime
 from services.larrysport.models import Partido
 from services.larrysport.scraper import scrape_todos
-from typing import Optional
+from typing import Optional, tuple, List
 
 logger = logging.getLogger(__name__)
 
