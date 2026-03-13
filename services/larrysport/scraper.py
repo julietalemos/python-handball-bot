@@ -296,21 +296,10 @@ async def scrape_todos() -> list[Partido]:
     )
     
     async with async_playwright() as p:
-        # Creamos un diccionario con los argumentos básicos
-        if chromium_path:
-            logger.info(f"🌐 Usando Chromium de sistema: {chromium_path}")
-            browser = await p.chromium.launch(
-                executable_path=chromium_path,
-                headless=True,
-                args=["--no-sandbox", "--disable-dev-shm-usage"]
-            )
-        else:
-            # EN RAILWAY ENTRARÁ ACÁ:
-            logger.info("🌐 Usando Chromium instalado por Playwright")
-            browser = await p.chromium.launch(
-                headless=True,
-                args=["--no-sandbox", "--disable-dev-shm-usage"]
-            )
+        browser = await p.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-dev-shm-usage"]
+        )
 
         try:
             for rama, categoria, divisiones_objetivo, solo_zona_a in COMBINACIONES:
