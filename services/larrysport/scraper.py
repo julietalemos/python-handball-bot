@@ -297,7 +297,8 @@ async def scrape_todos() -> list[Partido]:
     logger.info(f"🌐 Usando Chromium en: {chromium_path}")
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(    
+        browser = await p.chromium.launch(  
+                        executable_path=chromium_path,  
                         headless=True,
                         args=["--no-sandbox", "--disable-dev-shm-usage"],
                         )

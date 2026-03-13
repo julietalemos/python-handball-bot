@@ -28,4 +28,4 @@ cmds = [
 ]
 
 [start]
-cmd = "playwright install chromium && python main.py"
+cmd = "python main.py"
