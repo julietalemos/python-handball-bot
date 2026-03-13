@@ -1,0 +1,25 @@
+# Variables de entorno 
+.env
+
+# Caché de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Entorno virtual
+venv/
+.venv/
+
+# Caché del bot
+data/fixture_cache.json
+data/posiciones_cache.json
+data/goleadores_cache.json
+
+# Credenciales de Google
+credentials/
+
+# Logs
+logs/
+
+# Playwright
+.playwright/
