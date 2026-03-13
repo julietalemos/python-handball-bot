@@ -257,7 +257,10 @@ async def scrape_todos() -> list[Partido]:
     todos: list[Partido] = []
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(
+                        executable_path="/usr/bin/chromium",    
+                        headless=True
+                        )
         try:
             for rama, categoria in COMBINACIONES:
                 logger.info(f"━━ {rama} / {categoria} ━━")
