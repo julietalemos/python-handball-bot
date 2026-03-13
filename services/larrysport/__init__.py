@@ -95,6 +95,15 @@ class LarrySportService:
         escribir_fixture(partidos)
         logger.info(f"✅ Cache actualizado — {len(partidos)} partidos")
         return partidos
+    
+    def actualizar_cache_sync(self) -> list[Partido]:
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            return loop.run_until_complete(self.actualizar_cache())
+        finally:
+            loop.close()
 
     def cache_info(self) -> str:
         """Resumen del estado del caché para mostrar al admin."""

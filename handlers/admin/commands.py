@@ -50,8 +50,22 @@ async def cmd_actualizar(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     #async def _ejecutar():
     try:
-        await larrysport.actualizar_cache()
-        await msg.edit_text("✅ Fixture actualizado!")
+        proc = await asyncio.create_subprocess_exec(
+            sys.executable,                          # el mismo python del venv
+            "-m", "services.larrysport.run_scraper", # corre el script
+            cwd=os.getcwd(),                         # desde la raíz del proyecto
+            # stdout=asyncio.subprocess.PIPE,
+            # stderr=asyncio.subprocess.PIPE,
+            stdout=None,  # deja que el scraper imprima directo a la consola del bot
+            stderr=None,  # deja que el scraper imprima directo a la consola del bot
+        )
+        stdout, stderr = await proc.communicate()   # espera que termine
+
+        if proc.returncode == 0:
+            await msg.edit_text("✅ Fixture actualizado!")
+        else:
+            logger.error(f"Scraper falló:\n{stderr.decode()}")
+            await msg.edit_text("❌ Hubo un error.")
     except Exception as e:
         logger.error(f"Error en /actualizar: {e}")
         await msg.edit_text("❌ Hubo un error.")

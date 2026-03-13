@@ -11,6 +11,8 @@ Para correr: python main.py
 import asyncio
 import datetime
 import logging
+import os
+import sys
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
@@ -59,25 +61,20 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
 
 # ─── Job semanal ──────────────────────────────────────────────────
 
-# async def job_actualizar_fixture(context):
-#     """Actualiza el caché automáticamente los miércoles a las 3am."""
-#     logger.info("⏰ Job semanal: actualizando fixture...")
-#     service = LarrySportService()
-#     loop = asyncio.get_event_loop()
-#     try:
-#         partidos = await loop.run_in_executor(None, service.actualizar_cache)
-#         logger.info(f"✅ Job completado: {len(partidos)} partidos guardados.")
-#     except Exception as e:
-#         logger.error(f"❌ Error en job semanal: {e}")
 async def job_actualizar_fixture(context):
-    """Actualiza el caché automáticamente los miércoles a las 3am."""
     logger.info("⏰ Job semanal: actualizando fixture...")
-    service = LarrySportService()
-    try:
-        partidos = await service.actualizar_cache()
-        logger.info(f"✅ Job completado: {len(partidos)} partidos guardados.")
-    except Exception as e:
-        logger.error(f"❌ Error en job semanal: {e}")
+    proc = await asyncio.create_subprocess_exec(
+        sys.executable,
+        "-m", "services.larrysport.run_scraper",
+        cwd=os.getcwd(),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    stdout, stderr = await proc.communicate()
+    if proc.returncode == 0:
+        logger.info("✅ Job completado.")
+    else:
+        logger.error(f"❌ Job falló:\n{stderr.decode()}")
 
 
 # ─── Main ─────────────────────────────────────────────────────────

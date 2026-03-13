@@ -22,23 +22,28 @@ from services.larrysport.parser import extraer_partidos
 
 logger = logging.getLogger(__name__)
 
+import shutil, os
+logger.info(f"🔍 which chromium: {shutil.which('chromium')}")
+logger.info(f"🔍 which chromium-browser: {shutil.which('chromium-browser')}")
+
 # ─── Constantes ───────────────────────────────────────────────────
 
 URL_FEMEBAL = "https://www.femebal.com/tournament-tracker/?noAdv=0"
 
-COMBINACIONES: list[tuple[str, str]] = [
-    ("Femenino",  "Mayores"),
-    ("Masculino", "Mayores"),
-    ("Femenino",  "Junior"),
-    ("Masculino", "Junior"),
-    ("Femenino",  "Juveniles"),
-    ("Masculino", "Juveniles"),
-    ("Femenino",  "Cadetes"),
-    ("Masculino", "Cadetes"),
-    ("Femenino",  "Menores"),
-    ("Masculino", "Menores"),
-    ("Femenino",  "Infantiles"),
-    ("Masculino", "Infantiles"),
+# (rama, categoria, divisiones_objetivo, solo_zona_a)
+COMBINACIONES: list[tuple[str, str, list[str], bool]] = [
+    ("Femenino",  "Mayores",    ["LHD Hipotecario Seguros", "Liga de Honor Plata", "3º División"], True),
+    ("Masculino", "Mayores",    ["Liga de Honor Plata", "2º División"],                            True),
+    ("Femenino",  "Junior",     ["B"],  False),
+    ("Masculino", "Junior",     ["C"],  False),
+    ("Femenino",  "Juveniles",  ["B"],  False),
+    ("Masculino", "Juveniles",  ["C"],  False),
+    ("Femenino",  "Cadetes",    ["B"],  False),
+    ("Masculino", "Cadetes",    ["C"],  False),
+    ("Femenino",  "Menores",    ["B"],  False),
+    ("Masculino", "Menores",    ["C"],  False),
+    ("Femenino",  "Infantiles", ["B"],  False),
+    ("Masculino", "Infantiles", ["C"],  False),
 ]
 
 SECCIONES_CONOCIDAS = [
@@ -46,6 +51,7 @@ SECCIONES_CONOCIDAS = [
     "1º División", "2º División", "3º División", "4º División",
     "1° División", "2° División", "3° División", "4° División",
     "Torneos multidivision", "Torneos Multidivisión",
+    "A", "B", "C", "D", "E", "F", "G", "H",
 ]
 
 _PATRON_ICONOS = re.compile(r"[\ue000-\uf8ff]")
@@ -91,11 +97,22 @@ async def _get_cajas_torneos(page: Page) -> list[dict]:
     torneo_count: dict[str, int] = {}
 
     for linea in lineas:
-        if any(linea.startswith(s) or s in linea for s in SECCIONES_CONOCIDAS):
+        es_seccion = False
+        for s in SECCIONES_CONOCIDAS:
+            if len(s) == 1:  # letra simple como "A", "B", "C"
+                if linea == s:  # match exacto
+                    es_seccion = True
+                    break
+            else:
+                if linea.startswith(s) or s in linea:
+                    es_seccion = True
+                    break
+        
+        if es_seccion:
             seccion_actual = linea
         elif (linea.startswith("Torneo") or
-              linea.startswith("Super 8") or
-              linea.startswith("Copa")):
+            linea.startswith("Super 8") or
+            linea.startswith("Copa")):
             count = torneo_count.get(linea, 0)
             torneo_count[linea] = count + 1
             mapa_torneo_seccion[f"{linea}_{count}"] = seccion_actual
@@ -179,7 +196,8 @@ async def _volver_al_menu(page: Page, rama: str, categoria: str) -> list[dict]:
 # ─── Scraping por rama/categoría ─────────────────────────────────
 
 async def _scrape_rama_categoria(
-    browser: Browser, rama: str, categoria: str, nombre_club: str
+    browser: Browser, rama: str, categoria: str, nombre_club: str,
+    divisiones_objetivo: list[str], solo_zona_a: bool
 ) -> list[Partido]:
     partidos_totales: list[Partido] = []
     page = await browser.new_page()
@@ -195,6 +213,20 @@ async def _scrape_rama_categoria(
         while idx < len(cajas):
             torneo_nombre = cajas[idx]["texto"]
             division      = cajas[idx]["division"]
+
+             # Filtro 1: división objetivo
+            if divisiones_objetivo and division:
+                if not any(d in division for d in divisiones_objetivo):
+                    logger.info(f"    ↷ Saltando '{torneo_nombre}' [{division}] — fuera de objetivo")
+                    idx += 1
+                    continue
+
+            # Filtro 2: solo Zona A cuando hay múltiples zonas
+            if solo_zona_a and "Zona B" in torneo_nombre:
+                logger.info(f"    ↷ Saltando '{torneo_nombre}' — es Zona B")
+                idx += 1
+                continue
+
             logger.info(f"    → {torneo_nombre} [{division}]")
 
             try:
@@ -265,16 +297,17 @@ async def scrape_todos() -> list[Partido]:
     logger.info(f"🌐 Usando Chromium en: {chromium_path}")
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(
-                        executable_path=chromium_path,    
-                        headless=True
+        browser = await p.chromium.launch(    
+                        headless=True,
+                        args=["--no-sandbox", "--disable-dev-shm-usage"],
                         )
         try:
-            for rama, categoria in COMBINACIONES:
+            for rama, categoria, divisiones_objetivo, solo_zona_a in COMBINACIONES:
                 logger.info(f"━━ {rama} / {categoria} ━━")
                 try:
                     partidos = await _scrape_rama_categoria(
-                        browser, rama, categoria, nombre_club
+                        browser, rama, categoria, nombre_club,
+                        divisiones_objetivo, solo_zona_a
                     )
                     todos.extend(partidos)
                 except Exception as e:
