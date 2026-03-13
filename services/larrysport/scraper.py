@@ -291,8 +291,8 @@ async def scrape_todos() -> list[Partido]:
 
     chromium_path = (
         shutil.which("chromium") or
-        shutil.which("chromium-browser") or
-        "/usr/bin/chromium"
+        shutil.which("chromium-browser") #or
+        #"/usr/bin/chromium"
     )
     logger.info(f"🌐 Usando Chromium en: {chromium_path}")
 
