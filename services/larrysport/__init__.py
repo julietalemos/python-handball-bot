@@ -72,19 +72,26 @@ class LarrySportService:
     #     escribir_fixture(partidos)
     #     logger.info(f"✅ Cache actualizado — {len(partidos)} partidos")
     #     return partidos
-    def actualizar_cache(self) -> list[Partido]:
-        """
-        Scrapea FEMEBAL, guarda el caché y retorna los partidos.
-        Debe llamarse desde un thread separado (no desde el event loop principal).
-        """
-        import asyncio
+    # def actualizar_cache(self) -> list[Partido]:
+    #     """
+    #     Scrapea FEMEBAL, guarda el caché y retorna los partidos.
+    #     Debe llamarse desde un thread separado (no desde el event loop principal).
+    #     """
+    #     import asyncio
+    #     logger.info("🔄 Iniciando scraping de FEMEBAL...")
+    #     loop = asyncio.new_event_loop()
+    #     asyncio.set_event_loop(loop)
+    #     try:
+    #         partidos = loop.run_until_complete(scrape_todos())
+    #     finally:
+    #         loop.close()
+    #     escribir_fixture(partidos)
+    #     logger.info(f"✅ Cache actualizado — {len(partidos)} partidos")
+    #     return partidos
+
+    async def actualizar_cache(self) -> list[Partido]:
         logger.info("🔄 Iniciando scraping de FEMEBAL...")
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            partidos = loop.run_until_complete(scrape_todos())
-        finally:
-            loop.close()
+        partidos = await scrape_todos()  # ya es async, solo await directo
         escribir_fixture(partidos)
         logger.info(f"✅ Cache actualizado — {len(partidos)} partidos")
         return partidos

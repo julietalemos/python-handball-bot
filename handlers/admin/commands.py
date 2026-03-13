@@ -48,22 +48,15 @@ async def cmd_actualizar(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode="Markdown",
     )
 
-    async def _ejecutar():
-        try:
-            loop = asyncio.get_event_loop()
-            await loop.run_in_executor(None, larrysport.actualizar_cache)
-            await msg.edit_text(
-                "✅ *Fixture actualizado correctamente!*\n"
-                f"_{larrysport.cache_info()}_",
-                parse_mode="Markdown",
-            )
-        except Exception as e:
-            logger.error(f"Error en /actualizar: {e}")
-            await msg.edit_text(
-                "❌ Hubo un error actualizando. Revisá los logs.",
-            )
+    #async def _ejecutar():
+    try:
+        await larrysport.actualizar_cache()
+        await msg.edit_text("✅ Fixture actualizado!")
+    except Exception as e:
+        logger.error(f"Error en /actualizar: {e}")
+        await msg.edit_text("❌ Hubo un error.")
 
-    asyncio.create_task(_ejecutar())
+    #asyncio.create_task(_ejecutar())
 
 
 # ─── /cache_info ──────────────────────────────────────────────────

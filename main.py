@@ -59,13 +59,22 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
 
 # ─── Job semanal ──────────────────────────────────────────────────
 
+# async def job_actualizar_fixture(context):
+#     """Actualiza el caché automáticamente los miércoles a las 3am."""
+#     logger.info("⏰ Job semanal: actualizando fixture...")
+#     service = LarrySportService()
+#     loop = asyncio.get_event_loop()
+#     try:
+#         partidos = await loop.run_in_executor(None, service.actualizar_cache)
+#         logger.info(f"✅ Job completado: {len(partidos)} partidos guardados.")
+#     except Exception as e:
+#         logger.error(f"❌ Error en job semanal: {e}")
 async def job_actualizar_fixture(context):
     """Actualiza el caché automáticamente los miércoles a las 3am."""
     logger.info("⏰ Job semanal: actualizando fixture...")
     service = LarrySportService()
-    loop = asyncio.get_event_loop()
     try:
-        partidos = await loop.run_in_executor(None, service.actualizar_cache)
+        partidos = await service.actualizar_cache()
         logger.info(f"✅ Job completado: {len(partidos)} partidos guardados.")
     except Exception as e:
         logger.error(f"❌ Error en job semanal: {e}")
