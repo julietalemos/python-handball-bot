@@ -25,4 +25,5 @@ nixPkgs = [
 [phases.install]
 cmds = [
   "pip install -r requirements.txt",
+  "which chromium || which chromium-browser || find / -name 'chromium' -type f 2>/dev/null | head -5",
 ]
