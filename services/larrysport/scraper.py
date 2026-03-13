@@ -12,6 +12,7 @@ Función pública:
 import asyncio
 import logging
 import re
+import shutil
 
 from playwright.async_api import async_playwright, Browser, Page
 
@@ -256,9 +257,16 @@ async def scrape_todos() -> list[Partido]:
     nombre_club = Settings.NOMBRE_CLUB
     todos: list[Partido] = []
 
+    chromium_path = (
+        shutil.which("chromium") or
+        shutil.which("chromium-browser") or
+        "/usr/bin/chromium"
+    )
+    logger.info(f"🌐 Usando Chromium en: {chromium_path}")
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(
-                        executable_path="/usr/bin/chromium",    
+                        executable_path=chromium_path,    
                         headless=True
                         )
         try:
