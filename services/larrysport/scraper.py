@@ -294,11 +294,7 @@ async def scrape_todos() -> list[Partido]:
         shutil.which("chromium-browser") #or
         #"/usr/bin/chromium"
     )
-    if chromium_path:
-        logger.info(f"🌐 Usando Chromium del sistema en: {chromium_path}")
-    else:
-        logger.info("🌐 Usando Chromium interno de Playwright")
-
+    
     async with async_playwright() as p:
         # Creamos un diccionario con los argumentos básicos
         launch_args = {
@@ -309,9 +305,13 @@ async def scrape_todos() -> list[Partido]:
         # SI encontró un path en el sistema, lo agregamos. 
         # SI NO (como en Railway), Playwright usará el suyo por defecto.
         if chromium_path:
+            logger.info(f"🌐 Usando Chromium del sistema en: {chromium_path}")
             launch_args["executable_path"] = chromium_path
+        else:
+            logger.info("🌐 Usando Chromium interno de Playwright")
 
         browser = await p.chromium.launch(**launch_args)
+
         try:
             for rama, categoria, divisiones_objetivo, solo_zona_a in COMBINACIONES:
                 logger.info(f"━━ {rama} / {categoria} ━━")
