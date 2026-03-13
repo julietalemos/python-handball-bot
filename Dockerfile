@@ -1,17 +1,35 @@
-# Usamos la imagen oficial de Playwright que ya tiene Python y los browsers
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
+# Usamos una imagen de Python 3.13 que ya es compatible con todo lo nuevo
+FROM python:3.13-slim
 
-# Directorio de trabajo
+# Instalamos las dependencias del sistema necesarias para Playwright
+RUN apt-get update && apt-get install -y \
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    librandr2 \
+    libgbm1 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libasound2 \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Copiamos los archivos de requerimientos primero (para aprovechar el cache)
 COPY requirements.txt .
-
-# Instalamos las librerías de Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiamos el resto del código del bot
+# Instalamos Playwright y el navegador dentro del Docker
+RUN playwright install chromium
+RUN playwright install-deps chromium
+
 COPY . .
 
-# Comando para arrancar el bot
 CMD ["python", "main.py"]
