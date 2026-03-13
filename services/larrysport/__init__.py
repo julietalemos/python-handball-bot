@@ -47,28 +47,44 @@ class LarrySportService:
             logger.warning("Caché vacío. Usá /actualizar para cargar los fixtures.")
         return partidos
 
+    # def actualizar_cache(self) -> list[Partido]:
+    #     """
+    #     Scrapea FEMEBAL, guarda el caché y retorna los partidos.
+    #     Tarda aproximadamente 10-15 minutos.
+
+    #     Funciona tanto desde un script (sin event loop) como desde dentro
+    #     del bot (event loop activo): corre el scraping en un thread separado
+    #     con su propio event loop para no bloquear el bot.
+    #     """
+    #     logger.info("🔄 Iniciando scraping de FEMEBAL...")
+
+    #     def _run_en_thread() -> list[Partido]:
+    #         loop = asyncio.new_event_loop()
+    #         asyncio.set_event_loop(loop)
+    #         try:
+    #             return loop.run_until_complete(scrape_todos())
+    #         finally:
+    #             loop.close()
+
+    #     with concurrent.futures.ThreadPoolExecutor() as executor:
+    #         partidos = executor.submit(_run_en_thread).result()
+
+    #     escribir_fixture(partidos)
+    #     logger.info(f"✅ Cache actualizado — {len(partidos)} partidos")
+    #     return partidos
     def actualizar_cache(self) -> list[Partido]:
         """
         Scrapea FEMEBAL, guarda el caché y retorna los partidos.
-        Tarda aproximadamente 10-15 minutos.
-
-        Funciona tanto desde un script (sin event loop) como desde dentro
-        del bot (event loop activo): corre el scraping en un thread separado
-        con su propio event loop para no bloquear el bot.
+        Debe llamarse desde un thread separado (no desde el event loop principal).
         """
+        import asyncio
         logger.info("🔄 Iniciando scraping de FEMEBAL...")
-
-        def _run_en_thread() -> list[Partido]:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                return loop.run_until_complete(scrape_todos())
-            finally:
-                loop.close()
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            partidos = executor.submit(_run_en_thread).result()
-
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            partidos = loop.run_until_complete(scrape_todos())
+        finally:
+            loop.close()
         escribir_fixture(partidos)
         logger.info(f"✅ Cache actualizado — {len(partidos)} partidos")
         return partidos
