@@ -11,18 +11,14 @@ Uso desde cualquier parte del proyecto:
     partidos = service.actualizar_cache()   # Scrapea y guarda (~10-15 min)
 """
 
-import asyncio
-import concurrent.futures
 import logging
 
 from services.larrysport.cache import (
-    escribir_fixture,
     info_fixture,
     leer_fixture,
 )
 from datetime import datetime
 from services.larrysport.models import Partido
-from services.larrysport.scraper import scrape_todos
 from typing import Optional, List
 
 logger = logging.getLogger(__name__)
@@ -46,64 +42,6 @@ class LarrySportService:
         if not partidos:
             logger.warning("Caché vacío. Usá /actualizar para cargar los fixtures.")
         return partidos
-
-    # def actualizar_cache(self) -> list[Partido]:
-    #     """
-    #     Scrapea FEMEBAL, guarda el caché y retorna los partidos.
-    #     Tarda aproximadamente 10-15 minutos.
-
-    #     Funciona tanto desde un script (sin event loop) como desde dentro
-    #     del bot (event loop activo): corre el scraping en un thread separado
-    #     con su propio event loop para no bloquear el bot.
-    #     """
-    #     logger.info("🔄 Iniciando scraping de FEMEBAL...")
-
-    #     def _run_en_thread() -> list[Partido]:
-    #         loop = asyncio.new_event_loop()
-    #         asyncio.set_event_loop(loop)
-    #         try:
-    #             return loop.run_until_complete(scrape_todos())
-    #         finally:
-    #             loop.close()
-
-    #     with concurrent.futures.ThreadPoolExecutor() as executor:
-    #         partidos = executor.submit(_run_en_thread).result()
-
-    #     escribir_fixture(partidos)
-    #     logger.info(f"✅ Cache actualizado — {len(partidos)} partidos")
-    #     return partidos
-    # def actualizar_cache(self) -> list[Partido]:
-    #     """
-    #     Scrapea FEMEBAL, guarda el caché y retorna los partidos.
-    #     Debe llamarse desde un thread separado (no desde el event loop principal).
-    #     """
-    #     import asyncio
-    #     logger.info("🔄 Iniciando scraping de FEMEBAL...")
-    #     loop = asyncio.new_event_loop()
-    #     asyncio.set_event_loop(loop)
-    #     try:
-    #         partidos = loop.run_until_complete(scrape_todos())
-    #     finally:
-    #         loop.close()
-    #     escribir_fixture(partidos)
-    #     logger.info(f"✅ Cache actualizado — {len(partidos)} partidos")
-    #     return partidos
-
-    async def actualizar_cache(self) -> list[Partido]:
-        logger.info("🔄 Iniciando scraping de FEMEBAL...")
-        partidos = await scrape_todos()  # ya es async, solo await directo
-        escribir_fixture(partidos)
-        logger.info(f"✅ Cache actualizado — {len(partidos)} partidos")
-        return partidos
-    
-    def actualizar_cache_sync(self) -> list[Partido]:
-        import asyncio
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            return loop.run_until_complete(self.actualizar_cache())
-        finally:
-            loop.close()
 
     def cache_info(self) -> str:
         """Resumen del estado del caché para mostrar al admin."""
