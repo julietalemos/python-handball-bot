@@ -35,7 +35,7 @@ async def cmd_contacto(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     mensaje = (
         "📋 *SECRETARÍA — MARIANO ACOSTA*\n"
-        "─" * 28 + "\n\n"
+        "─────────────────────────────────\n\n"
         f"📍 {direccion}\n\n"
         f"🕐 *Horarios de atención*\n"
         f"{horarios}\n\n"
@@ -56,7 +56,7 @@ async def cmd_alias(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     mensaje = (
         "💳 *PAGO DE CUOTA — MARIANO ACOSTA*\n"
-        "─" * 28 + "\n\n"
+        "───────────────────────────────────\n\n"
         f"👤 *Titular:* {titular}\n"
         f"🏦 *Alias:* `{alias}`\n\n"
         "📧 *Una vez realizado el pago, enviá el comprobante con:*\n"

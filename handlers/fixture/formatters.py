@@ -89,7 +89,7 @@ def armar_mensaje_fixture(
     msg = f"🤾 *{titulo}*\n"
     if fecha_str:
         msg += f"_Actualizado: {fecha_str}_\n"
-    msg += "─" * 28 + "\n\n"
+    msg += "─────────────────────────\n\n"
     msg += "📅 *PRÓXIMOS*\n\n"
 
     for p in partidos:
@@ -114,7 +114,7 @@ def armar_mensaje_resultados(
     msg = "✅ *RESULTADOS MARIANO ACOSTA*\n"
     if fecha_str:
         msg += f"_Actualizado: {fecha_str}_\n"
-    msg += "─" * 28 + "\n\n"
+    msg += "─────────────────────────\n\n"
 
     for p in partidos:
         msg += formatear_partido(p) + "\n"
