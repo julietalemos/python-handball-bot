@@ -8,11 +8,7 @@ Punto de entrada principal del bot.
 Para correr: python main.py
 """
 
-import asyncio
-import datetime
 import logging
-import os
-import sys
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
@@ -21,7 +17,6 @@ from config.settings import Settings
 from handlers.fixture import register as register_fixture
 from handlers.admin import register as register_admin
 from handlers.info import register as register_info
-from services.larrysport import LarrySportService
 from utils.logger import setup_logger
 
 logger = setup_logger("main")
@@ -59,24 +54,6 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
         )
 
 
-# ─── Job semanal ──────────────────────────────────────────────────
-
-async def job_actualizar_fixture(context):
-    logger.info("⏰ Job semanal: actualizando fixture...")
-    proc = await asyncio.create_subprocess_exec(
-        sys.executable,
-        "-m", "services.larrysport.run_scraper",
-        cwd=os.getcwd(),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-    stdout, stderr = await proc.communicate()
-    if proc.returncode == 0:
-        logger.info("✅ Job completado.")
-    else:
-        logger.error(f"❌ Job falló:\n{stderr.decode()}")
-
-
 # ─── Main ─────────────────────────────────────────────────────────
 
 def main():
@@ -93,26 +70,9 @@ def main():
     register_fixture(app)
     register_admin(app)
     register_info(app)
-    
+
     # Error handler global
     app.add_error_handler(error_handler)
-
-    # Job semanal — próximo miércoles a las 03:00
-    now = datetime.datetime.now()
-    days_until_wednesday = (2 - now.weekday()) % 7
-    if days_until_wednesday == 0 and now.hour >= 3:
-        days_until_wednesday = 7
-    next_wednesday = (
-        now.replace(hour=3, minute=0, second=0, microsecond=0)
-        + datetime.timedelta(days=days_until_wednesday)
-    )
-    app.job_queue.run_repeating(
-        job_actualizar_fixture,
-        interval=datetime.timedelta(weeks=1),
-        first=next_wednesday,
-        name="actualizar_fixture_semanal",
-    )
-    logger.info(f"📅 Próxima actualización automática: {next_wednesday.strftime('%d/%m/%Y %H:%M')}")
 
     logger.info("✅ Bot corriendo. Presioná Ctrl+C para detener.")
     app.run_polling(

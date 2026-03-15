@@ -10,10 +10,7 @@ __pycache__/
 venv/
 .venv/
 
-# Caché del bot
-data/fixture_cache.json
-data/posiciones_cache.json
-data/goleadores_cache.json
+
 
 # Credenciales de Google
 credentials/

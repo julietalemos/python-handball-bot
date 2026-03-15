@@ -23,7 +23,7 @@ from services.larrysport.cache import (
 from datetime import datetime
 from services.larrysport.models import Partido
 from services.larrysport.scraper import scrape_todos
-from typing import Optional, tuple, List
+from typing import Optional, List
 
 logger = logging.getLogger(__name__)
 
