@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-03-13T20:12:19.590199",
+  "actualizado": "2026-03-15T18:50:52.570034",
   "partidos": [
     {
       "torneo": "Torneo Metropolitano Apertura",
@@ -252,9 +252,24 @@
       "visitante": "Mariano Acosta Handball",
       "es_local": false,
       "rival": "S.E.D.A.L.O.",
-      "marcador_local": null,
-      "marcador_visitante": null,
-      "jugado": false
+      "marcador_local": 34,
+      "marcador_visitante": 25,
+      "jugado": true
+    },
+    {
+      "torneo": "Super 8 Liga Hipotecario Seguros Femenino 2025",
+      "division": "LHD Hipotecario Seguros",
+      "rama": "Femenino",
+      "categoria": "Mayores",
+      "fecha_raw": "dom 15 marzo 14:00",
+      "hora": "14:00",
+      "local": "Municipalidad de Vicente López",
+      "visitante": "Mariano Acosta Handball",
+      "es_local": false,
+      "rival": "Municipalidad de Vicente López",
+      "marcador_local": 32,
+      "marcador_visitante": 36,
+      "jugado": true
     },
     {
       "torneo": "Torneo Metropolitano Apertura",
